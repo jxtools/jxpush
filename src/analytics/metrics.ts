@@ -2,7 +2,7 @@
  * Metrics collection for analytics
  */
 
-import { ProviderType } from '../types/config.types';
+import { ProviderType } from '../types/config.types.js';
 
 /**
  * Metrics data structure

@@ -2,13 +2,13 @@
  * Queue manager with concurrency control and batch processing
  */
 
-import { InMemoryQueue, QueueItem } from './InMemoryQueue';
-import { QueueConfig } from '../types/config.types';
-import { Logger } from '../utils/logger';
-import { RateLimiter } from '../rateLimit/RateLimiter';
-import { RetryEngine } from '../retry/RetryEngine';
-import { IProvider } from '../types/provider.types';
-import { HookManager } from '../analytics/hooks';
+import { InMemoryQueue, QueueItem } from './InMemoryQueue.js';
+import { QueueConfig } from '../types/config.types.js';
+import { Logger } from '../utils/logger.js';
+import { RateLimiter } from '../rateLimit/RateLimiter.js';
+import { RetryEngine } from '../retry/RetryEngine.js';
+import { IProvider } from '../types/provider.types.js';
+import { HookManager } from '../analytics/hooks.js';
 
 /**
  * Queue manager for orchestrating queue processing

@@ -2,8 +2,8 @@
  * Provider-specific error class
  */
 
-import { PushError, ErrorCode } from './PushError';
-import { ProviderType } from '../types/config.types';
+import { PushError, ErrorCode } from './PushError.js';
+import { ProviderType } from '../types/config.types.js';
 
 /**
  * Provider error with provider context

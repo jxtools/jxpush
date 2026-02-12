@@ -2,10 +2,10 @@
  * Retry engine with exponential backoff
  */
 
-import { RetryConfig, AnalyticsHooks } from '../types/config.types';
-import { Logger } from '../utils/logger';
-import { PushError } from '../errors/PushError';
-import { calculateBackoff, sleep } from '../utils/backoff';
+import { RetryConfig, AnalyticsHooks } from '../types/config.types.js';
+import { Logger } from '../utils/logger.js';
+import { PushError } from '../errors/PushError.js';
+import { calculateBackoff, sleep } from '../utils/backoff.js';
 
 /**
  * Retry context for tracking retry state
@@ -130,10 +130,7 @@ export class RetryEngine {
   /**
    * Execute with custom retry configuration
    */
-  async executeWithConfig<T>(
-    fn: () => Promise<T>,
-    customConfig: Partial<RetryConfig>
-  ): Promise<T> {
+  async executeWithConfig<T>(fn: () => Promise<T>, customConfig: Partial<RetryConfig>): Promise<T> {
     const originalConfig = { ...this.config };
 
     // Temporarily override config

@@ -2,7 +2,7 @@
  * Validation error class
  */
 
-import { PushError, ErrorCode } from './PushError';
+import { PushError, ErrorCode } from './PushError.js';
 
 /**
  * Validation error with field-level details

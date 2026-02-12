@@ -4,10 +4,10 @@
  */
 
 // Main client
-export { PushClient } from './client/PushClient';
+export { PushClient } from './client/PushClient.js';
 
 // Message builder
-export { MessageBuilder } from './builder/MessageBuilder';
+export { MessageBuilder } from './builder/MessageBuilder.js';
 
 // Types
 export {
@@ -20,7 +20,7 @@ export {
   RateLimitConfig,
   RetryConfig,
   AnalyticsHooks,
-} from './types/config.types';
+} from './types/config.types.js';
 
 export {
   MessagePriority,
@@ -31,17 +31,14 @@ export {
   SendResult,
   BulkSendResult,
   ScheduledMessage,
-} from './types/message.types';
+} from './types/message.types.js';
 
-export {
-  ProviderCapabilities,
-  IProvider,
-} from './types/provider.types';
+export { ProviderCapabilities, IProvider } from './types/provider.types.js';
 
 // Errors
-export { PushError, ErrorCode } from './errors/PushError';
-export { ValidationError } from './errors/ValidationError';
-export { ProviderError } from './errors/ProviderError';
+export { PushError, ErrorCode } from './errors/PushError.js';
+export { ValidationError } from './errors/ValidationError.js';
+export { ProviderError } from './errors/ProviderError.js';
 
 // Metrics
-export { Metrics, ProviderMetrics } from './analytics/metrics';
+export { Metrics, ProviderMetrics } from './analytics/metrics.js';

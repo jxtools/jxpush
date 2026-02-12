@@ -1,0 +1,270 @@
+/**
+ * Integration test for actual notification sending
+ * This test requires valid Firebase credentials and a real device token
+ */
+
+import { PushClient, ProviderType, LogLevel, MessagePriority } from '../../src';
+import { user1Token } from '../data/token';
+
+describe('PushClient Integration - Send Notifications', () => {
+  let client: PushClient;
+
+  beforeAll(async () => {
+    // Initialize client with FCM
+    client = new PushClient({
+      provider: ProviderType.FCM,
+      fcm: {
+        serviceAccountPath: '../../firebase-service-account.json',
+      },
+      logLevel: LogLevel.INFO,
+      retry: {
+        enabled: true,
+        maxAttempts: 3,
+        initialDelayMs: 1000,
+      },
+    });
+
+    await client.initialize();
+  });
+
+  afterAll(async () => {
+    await client.shutdown();
+  });
+
+  describe('Single Notification Send', () => {
+    it('should successfully send a notification to a valid token', async () => {
+      const result = await client.send({
+        token: user1Token,
+        notification: {
+          title: 'Integration Test',
+          body: 'Testing notification delivery',
+        },
+        data: {
+          testId: 'integration-test-1',
+          timestamp: new Date().toISOString(),
+        },
+        priority: MessagePriority.HIGH,
+      });
+
+      // Verify the result
+      expect(result).toBeDefined();
+      expect(result.success).toBe(true);
+      expect(result.messageId).toBeDefined();
+      expect(result.error).toBeUndefined();
+
+      console.log('✅ Notification sent successfully:', result.messageId);
+    }, 30000); // 30 second timeout
+
+    it('should fail gracefully with an invalid token', async () => {
+      const result = await client.send({
+        token: 'invalid-token-12345',
+        notification: {
+          title: 'Test',
+          body: 'This should fail',
+        },
+      });
+
+      // Verify the result indicates failure
+      expect(result).toBeDefined();
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+
+      console.log('✅ Invalid token handled correctly:', result.error?.message);
+    }, 30000);
+
+    it('should send notification using MessageBuilder', async () => {
+      const message = client
+        .message()
+        .token(user1Token)
+        .title('Builder Test')
+        .body('Testing MessageBuilder integration')
+        .data({ source: 'builder-test' })
+        .priority(MessagePriority.NORMAL)
+        .badge(1)
+        .sound('default')
+        .build();
+
+      const result = await client.send(message);
+
+      expect(result.success).toBe(true);
+      expect(result.messageId).toBeDefined();
+
+      console.log('✅ MessageBuilder notification sent:', result.messageId);
+    }, 30000);
+  });
+
+  describe('Bulk Notification Send', () => {
+    it('should send notifications to multiple tokens', async () => {
+      const messages = [
+        {
+          token: user1Token,
+          notification: {
+            title: 'Bulk Test 1',
+            body: 'First message in bulk send',
+          },
+        },
+        {
+          token: user1Token,
+          notification: {
+            title: 'Bulk Test 2',
+            body: 'Second message in bulk send',
+          },
+        },
+        {
+          token: user1Token,
+          notification: {
+            title: 'Bulk Test 3',
+            body: 'Third message in bulk send',
+          },
+        },
+      ];
+
+      const result = await client.sendBulk(messages);
+
+      expect(result).toBeDefined();
+      expect(result.total).toBe(3);
+      expect(result.successCount).toBeGreaterThan(0);
+      expect(result.results).toHaveLength(3);
+      expect(result.durationMs).toBeGreaterThan(0);
+
+      console.log('✅ Bulk send completed:', {
+        total: result.total,
+        success: result.successCount,
+        failure: result.failureCount,
+        duration: `${result.durationMs}ms`,
+      });
+    }, 30000);
+
+    it('should handle mixed valid and invalid tokens', async () => {
+      const messages = [
+        {
+          token: user1Token,
+          notification: {
+            title: 'Valid Token',
+            body: 'This should succeed',
+          },
+        },
+        {
+          token: 'invalid-token-1',
+          notification: {
+            title: 'Invalid Token',
+            body: 'This should fail',
+          },
+        },
+        {
+          token: user1Token,
+          notification: {
+            title: 'Valid Token 2',
+            body: 'This should also succeed',
+          },
+        },
+      ];
+
+      const result = await client.sendBulk(messages);
+
+      expect(result.total).toBe(3);
+      expect(result.successCount).toBeGreaterThan(0);
+      expect(result.failureCount).toBeGreaterThan(0);
+
+      // Check individual results
+      const successResults = result.results.filter((r) => r.success);
+      const failureResults = result.results.filter((r) => !r.success);
+
+      expect(successResults.length).toBeGreaterThan(0);
+      expect(failureResults.length).toBeGreaterThan(0);
+
+      console.log('✅ Mixed token handling:', {
+        successes: successResults.length,
+        failures: failureResults.length,
+      });
+    }, 30000);
+  });
+
+  describe('Metrics Tracking', () => {
+    it('should track metrics correctly after sending', async () => {
+      // Send a notification
+      await client.send({
+        token: user1Token,
+        notification: {
+          title: 'Metrics Test',
+          body: 'Testing metrics collection',
+        },
+      });
+
+      // Get metrics
+      const metrics = client.getMetrics();
+
+      expect(metrics).toBeDefined();
+      expect(metrics.totalSent).toBeGreaterThan(0);
+      expect(metrics.totalSuccess).toBeGreaterThan(0);
+      expect(metrics.byProvider).toBeDefined();
+      expect(metrics.byProvider.get(ProviderType.FCM)).toBeDefined();
+
+      console.log('✅ Metrics collected:', {
+        totalSent: metrics.totalSent,
+        totalSuccess: metrics.totalSuccess,
+        totalFailure: metrics.totalFailure,
+        averageLatency: `${metrics.averageLatencyMs.toFixed(2)}ms`,
+      });
+    }, 30000);
+  });
+
+  describe('Analytics Hooks', () => {
+    it('should trigger hooks during notification send', async () => {
+      const hooks = {
+        onSendStart: jest.fn(),
+        onSendSuccess: jest.fn(),
+        onSendFailure: jest.fn(),
+      };
+
+      // Create a new client with hooks
+      const hookedClient = new PushClient({
+        provider: ProviderType.FCM,
+        fcm: {
+          serviceAccountPath: './firebase-service-account.json',
+        },
+        logLevel: LogLevel.INFO,
+        hooks,
+      });
+
+      await hookedClient.initialize();
+
+      // Send notification
+      await hookedClient.send({
+        token: user1Token,
+        notification: {
+          title: 'Hook Test',
+          body: 'Testing analytics hooks',
+        },
+      });
+
+      // Verify hooks were called
+      expect(hooks.onSendStart).toHaveBeenCalled();
+      expect(hooks.onSendSuccess).toHaveBeenCalled();
+
+      console.log('✅ Hooks triggered successfully');
+
+      await hookedClient.shutdown();
+    }, 30000);
+  });
+
+  describe('Error Handling', () => {
+    it('should handle network errors gracefully', async () => {
+      // This test would require mocking network failures
+      // For now, we'll test with an invalid token which simulates an error
+      const result = await client.send({
+        token: 'definitely-invalid-token',
+        notification: {
+          title: 'Error Test',
+          body: 'Testing error handling',
+        },
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error?.message).toBeDefined();
+
+      console.log('✅ Error handled:', result.error?.message);
+    }, 30000);
+  });
+});

@@ -1,19 +1,18 @@
 /**
- * Basic FCM usage example
+ * Basic Expo usage example
  */
 
 import { PushClient, ProviderType, MessagePriority, LogLevel } from '../src';
 
 async function main() {
-  // Initialize client with FCM
+  // Initialize client with Expo
   const client = new PushClient({
-    provider: ProviderType.FCM,
-    fcm: {
-      // Option 1: Use service account file path
-      serviceAccountPath: '../firebase-service-account.json',
+    provider: ProviderType.EXPO,
+    expo: {
+      // Option 1: Use access token (optional, for higher rate limits)
+      // accessToken: process.env.EXPO_ACCESS_TOKEN,
 
-      // Option 2: Use service account object
-      // serviceAccount: require('./path/to/serviceAccountKey.json'),
+      // Option 2: No config needed for basic usage
     },
     logLevel: LogLevel.INFO,
   });
@@ -25,10 +24,10 @@ async function main() {
     // Example 1: Send a single notification
     console.log('\n=== Example 1: Single Send ===');
     const singleResult = await client.send({
-      token:'eWHTKzypRhqAVwMTrBZgDo:APA91bHXcc9vSHFS6MZ7VLcltwQe8CEeQbLBJMZTDhuILBOt0O9AtZ42kbwjCia09n-Y27wvsK_flQuyTSUJaGaPqwXtmEYF41FJbi-w9MlVHIrkx1Vs0vg',
+      token: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]', // Replace with your Expo push token
       notification: {
         title: 'Hello from jxpush!',
-        body: 'This is a test notification',
+        body: 'This is a test notification via Expo',
       },
       data: {
         customKey: 'customValue',
@@ -42,7 +41,7 @@ async function main() {
     console.log('\n=== Example 2: Using Message Builder ===');
     const message = client
       .message()
-      .token('eWHTKzypRhqAVwMTrBZgDo:APA91bHXcc9vSHFS6MZ7VLcltwQe8CEeQbLBJMZTDhuILBOt0O9AtZ42kbwjCia09n-Y27wvsK_flQuyTSUJaGaPqwXtmEYF41FJbi-w9MlVHIrkx1Vs0vg')
+      .token('ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]') // Replace with your token
       .title('Built with MessageBuilder')
       .body('This message was created using the fluent API')
       .data({ source: 'builder-example' })
@@ -57,10 +56,10 @@ async function main() {
     // Example 3: Bulk send to multiple devices
     console.log('\n=== Example 3: Bulk Send ===');
     const tokens = [
-      'eWHTKzypRhqAVwMTrBZgDo:APA91bHXcc9vSHFS6MZ7VLcltwQe8CEeQbLBJMZTDhuILBOt0O9AtZ42kbwjCia09n-Y27wvsK_flQuyTSUJaGaPqwXtmEYF41FJbi-w9MlVHIrkx1Vs0vg',
-      'eWHTKzypRhqAVwMTrBZgDo:APA91bHXcc9vSHFS6MZ7VLcltwQe8CEeQbLBJMZTDhuILBOt0O9AtZ42kbwjCia09n-Y27wvsK_flQuyTSUJaGaPqwXtmEYF41FJbi-w9MlVHIrkx1Vs0vg',
-      'eWHTKzypRhqAVwMTrBZgDo:APA91bHXcc9vSHFS6MZ7VLcltwQe8CEeQbLBJMZTDhuILBOt0O9AtZ42kbwjCia09n-Y27wvsK_flQuyTSUJaGaPqwXtmEYF41FJbi-w9MlVHIrkx1Vs0vg',
-      // ... up to thousands of tokens
+      'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]',
+      'ExponentPushToken[yyyyyyyyyyyyyyyyyyyyyy]',
+      'ExponentPushToken[zzzzzzzzzzzzzzzzzzzzzz]',
+      // ... up to 100 tokens per batch
     ];
 
     const bulkMessages = tokens.map((token) => ({
@@ -82,16 +81,25 @@ async function main() {
       duration: `${bulkResult.durationMs}ms`,
     });
 
-    // Example 4: Send to topic
-    console.log('\n=== Example 4: Topic Messaging ===');
-    const topicResult = await client.sendToTopic('news', {
+    // Example 4: Send with custom data and sound
+    console.log('\n=== Example 4: Rich Notification ===');
+    const richResult = await client.send({
+      token: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]',
       notification: {
-        title: 'Breaking News',
-        body: 'Important update for all subscribers',
+        title: '🎉 Special Offer!',
+        body: 'Check out our latest deals',
+        sound: 'default',
+        badge: 1,
       },
+      data: {
+        screen: 'offers',
+        offerId: '12345',
+      },
+      priority: MessagePriority.HIGH,
+      ttl: 3600, // 1 hour
     });
 
-    console.log('Topic send result:', topicResult);
+    console.log('Rich notification result:', richResult);
 
     // Get metrics
     console.log('\n=== Metrics ===');

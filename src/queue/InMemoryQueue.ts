@@ -2,8 +2,8 @@
  * In-memory queue implementation
  */
 
-import { PushMessage } from '../types/message.types';
-import { Logger } from '../utils/logger';
+import { PushMessage } from '../types/message.types.js';
+import { Logger } from '../utils/logger.js';
 import { EventEmitter } from 'events';
 
 /**

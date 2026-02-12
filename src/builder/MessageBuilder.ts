@@ -2,8 +2,8 @@
  * Message builder with fluent API
  */
 
-import { PushMessage, NotificationPayload, MessagePriority } from '../types/message.types';
-import { validateMessageOrThrow } from '../validation/messageValidator';
+import { PushMessage, NotificationPayload, MessagePriority } from '../types/message.types.js';
+import { validateMessageOrThrow } from '../validation/messageValidator.js';
 
 /**
  * Fluent message builder

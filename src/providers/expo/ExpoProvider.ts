@@ -1,25 +1,31 @@
 /**
- * Expo Push Notification Provider (Phase 2 - Scaffold)
+ * Expo Push Notification Provider
  */
 
-import { Provider } from '../base/Provider';
-import { ProviderCapabilities } from '../../types/provider.types';
-import { PushMessage, SendResult, BulkSendResult } from '../../types/message.types';
-import { ProviderType, ExpoConfig } from '../../types/config.types';
-import { Logger } from '../../utils/logger';
-import { validateExpoToken } from '../../validation/tokenValidator';
-import { validateMessage } from '../../validation/messageValidator';
+import { Expo } from 'expo-server-sdk';
+import type { ExpoPushMessage, ExpoPushSuccessTicket } from 'expo-server-sdk';
+import { Provider } from '../base/Provider.js';
+import { ProviderCapabilities } from '../../types/provider.types.js';
+import { PushMessage, SendResult, BulkSendResult } from '../../types/message.types.js';
+import { ProviderType, ExpoConfig } from '../../types/config.types.js';
+import { Logger } from '../../utils/logger.js';
+import { validateExpoToken } from '../../validation/tokenValidator.js';
+import { validateMessage } from '../../validation/messageValidator.js';
+import { ProviderError } from '../../errors/ProviderError.js';
+import { ErrorCode } from '../../errors/PushError.js';
+import { chunk } from '../../utils/chunk.js';
 
 /**
- * Expo Provider implementation (Phase 2 - Scaffold)
+ * Expo Provider implementation
  */
 export class ExpoProvider extends Provider {
-  // private _config: ExpoConfig; // TODO: Use in Phase 2
+  private expo: Expo;
 
   constructor(config: ExpoConfig, logger: Logger) {
     super(logger);
-    // Store config for Phase 2 implementation
-    void config; // Suppress unused parameter warning
+    this.expo = new Expo({
+      accessToken: config.accessToken,
+    });
   }
 
   /**
@@ -45,46 +51,199 @@ export class ExpoProvider extends Provider {
 
   /**
    * Initialize Expo provider
-   * TODO: Implement in Phase 2
    */
   async initialize(): Promise<void> {
-    this.logger.info('Expo provider initialization (Phase 2 - Not yet implemented)');
-    // TODO: Initialize Expo SDK
-    this.initialized = true;
+    try {
+      this.logger.info('Initializing Expo provider...');
+
+      // Expo SDK doesn't require explicit initialization
+      // Just verify the SDK is ready
+      this.initialized = true;
+      this.logger.info('Expo provider initialized successfully');
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Failed to initialize Expo provider', err);
+      throw new ProviderError(
+        `Expo initialization failed: ${err.message}`,
+        ProviderType.EXPO,
+        ErrorCode.PROVIDER_INIT_FAILED,
+        false,
+        undefined,
+        err
+      );
+    }
   }
 
   /**
    * Send a single push notification
-   * TODO: Implement in Phase 2
    */
-  async send(_message: PushMessage): Promise<SendResult> {
+  async send(message: PushMessage): Promise<SendResult> {
     this.ensureInitialized();
-    // TODO: Implement Expo send
-    throw new Error('Expo provider not yet implemented (Phase 2)');
+
+    try {
+      // Validate message
+      const validation = this.validateMessage(message);
+      if (!validation.valid) {
+        throw new ProviderError(
+          `Message validation failed: ${validation.errors.join(', ')}`,
+          ProviderType.EXPO,
+          ErrorCode.INVALID_MESSAGE
+        );
+      }
+
+      // Convert to Expo format
+      const expoMessage = this.convertToExpoMessage(message);
+
+      // Send via Expo
+      const tickets = await this.expo.sendPushNotificationsAsync([expoMessage]);
+      const ticket = tickets[0];
+
+      // Check ticket status
+      if (ticket.status === 'ok') {
+        const successTicket = ticket as ExpoPushSuccessTicket;
+        this.logger.debug('Expo message sent successfully', { id: successTicket.id });
+
+        return {
+          success: true,
+          messageId: successTicket.id,
+          provider: ProviderType.EXPO,
+          token: typeof message.token === 'string' ? message.token : undefined,
+        };
+      } else {
+        // Error ticket
+        const error = new Error(ticket.message || 'Unknown Expo error');
+        this.logger.error('Expo send failed', error);
+
+        return {
+          success: false,
+          error: ProviderError.fromProviderError(error, ProviderType.EXPO),
+          provider: ProviderType.EXPO,
+          token: typeof message.token === 'string' ? message.token : undefined,
+        };
+      }
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Expo send failed', err);
+
+      return {
+        success: false,
+        error: ProviderError.fromProviderError(err, ProviderType.EXPO),
+        provider: ProviderType.EXPO,
+        token: typeof message.token === 'string' ? message.token : undefined,
+      };
+    }
   }
 
   /**
    * Send multiple push notifications in bulk
-   * TODO: Implement in Phase 2
    */
-  async sendBulk(_messages: PushMessage[]): Promise<BulkSendResult> {
+  async sendBulk(messages: PushMessage[]): Promise<BulkSendResult> {
     this.ensureInitialized();
-    // TODO: Implement Expo bulk send
-    throw new Error('Expo provider not yet implemented (Phase 2)');
+
+    const startTime = Date.now();
+    const results: SendResult[] = [];
+
+    try {
+      // Flatten all tokens from all messages
+      const tokenMessagePairs: Array<{ token: string; message: PushMessage }> = [];
+
+      for (const message of messages) {
+        if (Array.isArray(message.token)) {
+          for (const token of message.token) {
+            tokenMessagePairs.push({ token, message });
+          }
+        } else if (message.token) {
+          tokenMessagePairs.push({ token: message.token, message });
+        }
+      }
+
+      // Chunk into batches of 100 (Expo limit)
+      const batches = chunk(tokenMessagePairs, 100);
+
+      for (const batch of batches) {
+        try {
+          // Convert all messages in batch to Expo format
+          const expoMessages = batch.map(({ token, message }) => {
+            const expoMsg = this.convertToExpoMessage(message);
+            // Override token to ensure it's the specific one from the pair
+            expoMsg.to = token;
+            return expoMsg;
+          });
+
+          // Send batch
+          const tickets = await this.expo.sendPushNotificationsAsync(expoMessages);
+
+          // Process tickets
+          tickets.forEach((ticket, index) => {
+            const token = batch[index].token;
+
+            if (ticket.status === 'ok') {
+              const successTicket = ticket as ExpoPushSuccessTicket;
+              results.push({
+                success: true,
+                messageId: successTicket.id,
+                provider: ProviderType.EXPO,
+                token,
+              });
+            } else {
+              const error = new Error(ticket.message || 'Unknown Expo error');
+              results.push({
+                success: false,
+                error: ProviderError.fromProviderError(error, ProviderType.EXPO),
+                provider: ProviderType.EXPO,
+                token,
+              });
+            }
+          });
+        } catch (error) {
+          // If batch fails, mark all as failed
+          const err = error instanceof Error ? error : new Error(String(error));
+          for (const { token } of batch) {
+            results.push({
+              success: false,
+              error: ProviderError.fromProviderError(err, ProviderType.EXPO),
+              provider: ProviderType.EXPO,
+              token,
+            });
+          }
+        }
+      }
+
+      const successCount = results.filter((r) => r.success).length;
+      const failureCount = results.filter((r) => !r.success).length;
+
+      return {
+        total: results.length,
+        successCount,
+        failureCount,
+        results,
+        provider: ProviderType.EXPO,
+        durationMs: Date.now() - startTime,
+      };
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      this.logger.error('Expo bulk send failed', err);
+
+      throw ProviderError.fromProviderError(err, ProviderType.EXPO);
+    }
   }
 
   /**
    * Send to a topic (not supported by Expo)
    */
   async sendToTopic(_topic: string, _message: PushMessage): Promise<SendResult> {
-    throw new Error('Topic messaging not supported by Expo');
+    throw new ProviderError(
+      'Topic messaging not supported by Expo',
+      ProviderType.EXPO,
+      ErrorCode.PROVIDER_ERROR
+    );
   }
 
   /**
    * Validate Expo token
    */
   validateToken(token: string): boolean {
-    return validateExpoToken(token);
+    return validateExpoToken(token) && Expo.isExpoPushToken(token);
   }
 
   /**
@@ -92,6 +251,51 @@ export class ExpoProvider extends Provider {
    */
   validateMessage(message: PushMessage): { valid: boolean; errors: string[] } {
     return validateMessage(message);
+  }
+
+  /**
+   * Convert universal message to Expo format
+   */
+  private convertToExpoMessage(message: PushMessage): ExpoPushMessage {
+    const expoMessage: ExpoPushMessage = {
+      to: typeof message.token === 'string' ? message.token : message.token?.[0] || '',
+    };
+
+    // Set notification
+    if (message.notification) {
+      expoMessage.title = message.notification.title;
+      expoMessage.body = message.notification.body;
+
+      if (message.notification.sound) {
+        expoMessage.sound = message.notification.sound;
+      }
+
+      if (message.notification.badge !== undefined) {
+        expoMessage.badge = message.notification.badge;
+      }
+
+      if (message.notification.channelId) {
+        expoMessage.channelId = message.notification.channelId;
+      }
+    }
+
+    // Set data
+    if (message.data) {
+      expoMessage.data = message.data;
+    }
+
+    // Set priority
+    if (message.priority) {
+      expoMessage.priority =
+        message.priority === 'high' ? 'high' : message.priority === 'normal' ? 'normal' : 'default';
+    }
+
+    // Set TTL
+    if (message.ttl) {
+      expoMessage.expiration = Math.floor(Date.now() / 1000) + message.ttl;
+    }
+
+    return expoMessage;
   }
 
   /**

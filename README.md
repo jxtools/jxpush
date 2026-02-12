@@ -6,7 +6,7 @@ Production-grade unified push notification library for Node.js with FCM and Expo
 
 ## Features
 
-✨ **Multi-Provider Support** - FCM (Phase 1) and Expo (Phase 2)
+✨ **Multi-Provider Support** - FCM and Expo fully supported
 🚀 **Bulk Sending** - Auto-chunking and batch processing
 🔄 **Smart Retry** - Exponential backoff with jitter
 ⚡ **Rate Limiting** - Token bucket algorithm with burst support
@@ -31,7 +31,12 @@ yarn add jxpush
 1. Get your Firebase service account key from [Firebase Console](https://console.firebase.google.com/)
 2. Download the JSON file or use the object directly
 
-### Basic Usage
+### Expo Setup
+
+1. Get Expo push tokens from your Expo app (see [EXPO_SETUP.md](./EXPO_SETUP.md))
+2. Optionally get an access token from [expo.dev](https://expo.dev) for higher rate limits
+
+### Basic Usage (FCM)
 
 ```typescript
 import { PushClient, ProviderType } from 'jxpush';
@@ -60,6 +65,33 @@ const result = await client.send({
 console.log(result);
 ```
 
+### Basic Usage (Expo)
+
+```typescript
+import { PushClient, ProviderType } from 'jxpush';
+
+// Initialize client
+const client = new PushClient({
+  provider: ProviderType.EXPO,
+  expo: {
+    accessToken: process.env.EXPO_ACCESS_TOKEN, // Optional
+  },
+});
+
+await client.initialize();
+
+// Send a notification
+const result = await client.send({
+  token: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]',
+  notification: {
+    title: 'Hello!',
+    body: 'Your first Expo push notification',
+  },
+});
+
+console.log(result);
+```
+
 ## API Reference
 
 ### PushClient
@@ -70,7 +102,7 @@ console.log(result);
 interface PushClientConfig {
   provider: ProviderType;           // 'fcm' | 'expo'
   fcm?: FCMConfig;                  // FCM configuration
-  expo?: ExpoConfig;                // Expo configuration (Phase 2)
+  expo?: ExpoConfig;                // Expo configuration
   queue?: QueueConfig;              // Queue settings
   rateLimit?: RateLimitConfig;      // Rate limiting settings
   retry?: RetryConfig;              // Retry settings
@@ -337,13 +369,15 @@ console.log('By provider:', metrics.byProvider);
 See the [examples](./examples) directory for complete working examples:
 
 - [basic-fcm.ts](./examples/basic-fcm.ts) - Basic FCM usage
+- [basic-expo.ts](./examples/basic-expo.ts) - Basic Expo usage
 - [with-queue.ts](./examples/with-queue.ts) - Queue and rate limiting
 - [with-hooks.ts](./examples/with-hooks.ts) - Analytics hooks
 
 ## Roadmap
 
-<!-- ### Phase 1 (Current) ✅
+### Phase 1 ✅
 - [x] FCM provider
+- [x] Expo provider
 - [x] Single & bulk send
 - [x] Queue system
 - [x] Rate limiting
@@ -352,15 +386,35 @@ See the [examples](./examples) directory for complete working examples:
 - [x] Message builder
 
 ### Phase 2 (Planned)
-- [ ] Expo provider
 - [ ] Topic messaging (full support)
 - [ ] Message scheduling
 - [ ] Persistent queue (Redis/DB)
 - [ ] Advanced metrics
+- [ ] WebPush support
 
 ## License
 
-MIT © jxngrx -->
+MIT License
+
+Copyright (c) 2026 jxngrx
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ## Contributing
 

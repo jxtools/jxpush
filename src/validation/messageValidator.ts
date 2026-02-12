@@ -2,8 +2,8 @@
  * Message validation utilities
  */
 
-import { PushMessage } from '../types/message.types';
-import { ValidationError } from '../errors/ValidationError';
+import { PushMessage } from '../types/message.types.js';
+import { ValidationError } from '../errors/ValidationError.js';
 
 /**
  * Validate push message structure
@@ -112,9 +112,8 @@ export function validateBatchSize(size: number, maxSize: number): void {
   }
 
   if (size > maxSize) {
-    throw new ValidationError(
-      `Batch size ${size} exceeds maximum ${maxSize}`,
-      [`Batch size exceeds maximum of ${maxSize}`]
-    );
+    throw new ValidationError(`Batch size ${size} exceeds maximum ${maxSize}`, [
+      `Batch size exceeds maximum of ${maxSize}`,
+    ]);
   }
 }

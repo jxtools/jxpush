@@ -8,3 +8,5 @@ coverage
 .vscode
 .idea
 *.tsbuildinfo
+JX_TEST
+firebase-service-account.json

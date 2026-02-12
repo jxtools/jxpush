@@ -5,6 +5,7 @@
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "import": "./dist/esm/index.js",
@@ -23,7 +24,10 @@
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "build:types": "tsc -p tsconfig.types.json",
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=integration",
+    "test:unit": "jest --testPathIgnorePatterns=integration",
+    "test:integration": "jest --testPathPattern=integration",
+    "test:all": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts",
@@ -60,7 +64,8 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "firebase-admin": "^12.0.0"
+    "firebase-admin": "^12.0.0",
+    "expo-server-sdk": "^5.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

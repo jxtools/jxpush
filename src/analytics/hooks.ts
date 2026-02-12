@@ -2,8 +2,8 @@
  * Analytics hooks implementation
  */
 
-import { AnalyticsHooks } from '../types/config.types';
-import { Logger } from '../utils/logger';
+import { AnalyticsHooks } from '../types/config.types.js';
+import { Logger } from '../utils/logger.js';
 
 /**
  * Hook manager for analytics events

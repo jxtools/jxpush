@@ -2,20 +2,20 @@
  * Main PushClient facade
  */
 
-import { PushClientConfig, ProviderType, LogLevel } from '../types/config.types';
-import { PushMessage, SendResult, BulkSendResult } from '../types/message.types';
-import { IProvider } from '../types/provider.types';
-import { FCMProvider } from '../providers/fcm/FCMProvider';
-import { ExpoProvider } from '../providers/expo/ExpoProvider';
-import { RateLimiter } from '../rateLimit/RateLimiter';
-import { RetryEngine } from '../retry/RetryEngine';
-import { QueueManager } from '../queue/QueueManager';
-import { HookManager } from '../analytics/hooks';
-import { MetricsCollector } from '../analytics/metrics';
-import { MessageBuilder } from '../builder/MessageBuilder';
-import { Logger, createLogger } from '../utils/logger';
-import { PushError, ErrorCode } from '../errors/PushError';
-import { chunk } from '../utils/chunk';
+import { PushClientConfig, ProviderType, LogLevel } from '../types/config.types.js';
+import { PushMessage, SendResult, BulkSendResult } from '../types/message.types.js';
+import { IProvider } from '../types/provider.types.js';
+import { FCMProvider } from '../providers/fcm/FCMProvider.js';
+import { ExpoProvider } from '../providers/expo/ExpoProvider.js';
+import { RateLimiter } from '../rateLimit/RateLimiter.js';
+import { RetryEngine } from '../retry/RetryEngine.js';
+import { QueueManager } from '../queue/QueueManager.js';
+import { HookManager } from '../analytics/hooks.js';
+import { MetricsCollector } from '../analytics/metrics.js';
+import { MessageBuilder } from '../builder/MessageBuilder.js';
+import { Logger, createLogger } from '../utils/logger.js';
+import { PushError, ErrorCode } from '../errors/PushError.js';
+import { chunk } from '../utils/chunk.js';
 
 /**
  * Main PushClient class - entry point for the library

@@ -2,10 +2,10 @@
  * Base provider abstract class
  */
 
-import { IProvider, ProviderCapabilities } from '../../types/provider.types';
-import { PushMessage, SendResult, BulkSendResult } from '../../types/message.types';
-import { Logger } from '../../utils/logger';
-import { ProviderType } from '../../types/config.types';
+import { IProvider, ProviderCapabilities } from '../../types/provider.types.js';
+import { PushMessage, SendResult, BulkSendResult } from '../../types/message.types.js';
+import { Logger } from '../../utils/logger.js';
+import { ProviderType } from '../../types/config.types.js';
 
 /**
  * Abstract base class for all providers

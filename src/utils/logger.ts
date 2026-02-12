@@ -2,7 +2,7 @@
  * Internal logging utility
  */
 
-import { LogLevel } from '../types/config.types';
+import { LogLevel } from '../types/config.types.js';
 
 /**
  * Logger class for internal logging

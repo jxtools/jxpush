@@ -100,19 +100,10 @@ export class PushError extends Error {
 
     if (error instanceof Error) {
       const isRetryable = PushError.isRetryable(error);
-      return new PushError(
-        error.message,
-        code || ErrorCode.UNKNOWN_ERROR,
-        isRetryable,
-        error
-      );
+      return new PushError(error.message, code || ErrorCode.UNKNOWN_ERROR, isRetryable, error);
     }
 
-    return new PushError(
-      String(error),
-      code || ErrorCode.UNKNOWN_ERROR,
-      false
-    );
+    return new PushError(String(error), code || ErrorCode.UNKNOWN_ERROR, false);
   }
 
   /**

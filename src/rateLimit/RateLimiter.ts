@@ -2,8 +2,8 @@
  * Rate limiter implementation using token bucket algorithm
  */
 
-import { RateLimitConfig } from '../types/config.types';
-import { Logger } from '../utils/logger';
+import { RateLimitConfig } from '../types/config.types.js';
+import { Logger } from '../utils/logger.js';
 
 /**
  * Token bucket for rate limiting

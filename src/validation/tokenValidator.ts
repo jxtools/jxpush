@@ -2,7 +2,7 @@
  * Token validation utilities
  */
 
-import { ProviderType } from '../types/config.types';
+import { ProviderType } from '../types/config.types.js';
 
 /**
  * Validate FCM token format

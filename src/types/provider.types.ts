@@ -2,7 +2,7 @@
  * Provider types for jxpush
  */
 
-import { PushMessage, SendResult, BulkSendResult } from './message.types';
+import { PushMessage, SendResult, BulkSendResult } from './message.types.js';
 
 /**
  * Provider capabilities

@@ -2,7 +2,7 @@
  * Message types for jxpush
  */
 
-import { ProviderType } from './config.types';
+import { ProviderType } from './config.types.js';
 
 /**
  * Message priority levels

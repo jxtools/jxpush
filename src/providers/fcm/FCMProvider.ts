@@ -3,16 +3,16 @@
  */
 
 import * as admin from 'firebase-admin';
-import { Provider } from '../base/Provider';
-import { ProviderCapabilities } from '../../types/provider.types';
-import { PushMessage, SendResult, BulkSendResult, FCMMessage } from '../../types/message.types';
-import { ProviderType, FCMConfig } from '../../types/config.types';
-import { Logger } from '../../utils/logger';
-import { ProviderError } from '../../errors/ProviderError';
-import { ErrorCode } from '../../errors/PushError';
-import { validateFCMToken } from '../../validation/tokenValidator';
-import { validateMessage } from '../../validation/messageValidator';
-import { chunk } from '../../utils/chunk';
+import { Provider } from '../base/Provider.js';
+import { ProviderCapabilities } from '../../types/provider.types.js';
+import { PushMessage, SendResult, BulkSendResult, FCMMessage } from '../../types/message.types.js';
+import { ProviderType, FCMConfig } from '../../types/config.types.js';
+import { Logger } from '../../utils/logger.js';
+import { ProviderError } from '../../errors/ProviderError.js';
+import { ErrorCode } from '../../errors/PushError.js';
+import { validateFCMToken } from '../../validation/tokenValidator.js';
+import { validateMessage } from '../../validation/messageValidator.js';
+import { chunk } from '../../utils/chunk.js';
 
 /**
  * FCM Provider implementation

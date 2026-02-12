@@ -192,12 +192,7 @@ export interface AnalyticsHooks {
   /**
    * Called when a retry is attempted
    */
-  onRetry?: (data: {
-    attempt: number;
-    maxAttempts: number;
-    error: Error;
-    delayMs: number;
-  }) => void;
+  onRetry?: (data: { attempt: number; maxAttempts: number; error: Error; delayMs: number }) => void;
 
   /**
    * Called when rate limit is hit

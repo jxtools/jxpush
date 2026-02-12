@@ -2,7 +2,7 @@
  * Analytics hooks example
  */
 
-import { PushClient, ProviderType } from '../src';
+import { PushClient, ProviderType, LogLevel } from '../src';
 
 async function main() {
   // Track statistics
@@ -65,7 +65,7 @@ async function main() {
       maxAttempts: 3,
       initialDelayMs: 1000,
     },
-    logLevel: 'info' as const,
+    logLevel: LogLevel.INFO,
   });
 
   await client.initialize();
