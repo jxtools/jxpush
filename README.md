@@ -154,14 +154,14 @@ new PushClient({
 
 ## 🧠 Provider Setup Guides
 
-- **[Expo Setup Guide](./EXPO_SETUP.md)** (Get tokens, access tokens)
-- **[Firebase (FCM) Setup Guide](./FIREBASE_SETUP.md)** (Service account setup)
+- **[Expo Setup Guide](./project_docs/EXPO_SETUP.md)** (Get tokens, access tokens)
+- **[Firebase (FCM) Setup Guide](./project_docs/FIREBASE_SETUP.md)** (Service account setup)
 
 ---
 
 ## 🤝 Contributing
 
-We love contributions! Please read our **[Contributing Guide](./CONTRIBUTING.md)** to get started.
+We love contributions! Please read our **[Contributing Guide](./project_docs/CONTRIBUTING.md)** to get started.
 
 1. Fork the repo
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
