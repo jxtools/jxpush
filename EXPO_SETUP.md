@@ -59,15 +59,16 @@ import { PushClient, ProviderType } from 'jxpush';
 
 const client = new PushClient({
   provider: ProviderType.EXPO,
-  expo: {
-    // Optional: Use an access token for higher rate limits
-    // Get this from: https://expo.dev/accounts/[account]/settings/access-tokens
-    accessToken: process.env.EXPO_ACCESS_TOKEN,
-  },
+  // expo config is optional - only needed if you want to use an access token
+  // expo: {
+  //   accessToken: process.env.EXPO_ACCESS_TOKEN,
+  // },
 });
 
 await client.initialize();
 ```
+
+> **Note**: The `expo` configuration object is completely optional. You only need to provide it if you want to use an access token for higher rate limits (6,000 vs 600 requests/hour).
 
 ### Sending Notifications
 

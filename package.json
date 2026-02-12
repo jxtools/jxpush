@@ -1,6 +1,6 @@
 {
   "name": "jxpush",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Production-grade unified push notification library for Node.js with FCM and Expo support",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -54,7 +54,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jxngrx/jxpush.git"
+    "url": "git+https://github.com/jxngrx/jxpush.git"
   },
   "bugs": {
     "url": "https://github.com/jxngrx/jxpush/issues"

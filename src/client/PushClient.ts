@@ -86,13 +86,8 @@ export class PushClient {
         return new FCMProvider(this.config.fcm, this.logger);
 
       case ProviderType.EXPO:
-        if (!this.config.expo) {
-          throw new PushError(
-            'Expo configuration is required when using Expo provider',
-            ErrorCode.INVALID_CONFIG
-          );
-        }
-        return new ExpoProvider(this.config.expo, this.logger);
+        // Expo config is optional - can be empty object or undefined
+        return new ExpoProvider(this.config.expo || {}, this.logger);
 
       default:
         throw new PushError(`Unsupported provider: ${providerType}`, ErrorCode.INVALID_PROVIDER);

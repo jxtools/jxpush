@@ -10,3 +10,4 @@ coverage
 *.tsbuildinfo
 JX_TEST
 firebase-service-account.json
+*.tgz
