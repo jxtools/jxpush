@@ -5,8 +5,6 @@
 
 import { Command } from 'commander';
 import { Formatter } from '../utils/formatter.js';
-import { InputParser } from '../utils/input-parser.js';
-import { ConfigLoader } from '../utils/config-loader.js';
 import type { TopicOptions } from '../types.js';
 
 export function createTopicCommand(): Command {

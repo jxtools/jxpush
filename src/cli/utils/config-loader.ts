@@ -4,7 +4,7 @@
  */
 
 import { existsSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { resolve } from 'path';
 import { pathToFileURL } from 'url';
 import type { PushClientConfig } from '../../types/config.types.js';
 import { Formatter } from './formatter.js';

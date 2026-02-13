@@ -6,6 +6,7 @@
 import { Command } from 'commander';
 import { PushClient } from '../../client/PushClient.js';
 import { MessageBuilder } from '../../builder/MessageBuilder.js';
+import type { PushClientConfig } from '../../types/config.types.js';
 import { Formatter } from '../utils/formatter.js';
 import { InputParser } from '../utils/input-parser.js';
 import { ConfigLoader } from '../utils/config-loader.js';
@@ -32,7 +33,7 @@ export function createBulkCommand(): Command {
         const envConfig = ConfigLoader.loadEnvVars();
         const mergedConfig = ConfigLoader.mergeWithOptions(
           { ...envConfig, ...config },
-          options
+          options as unknown as Record<string, unknown>
         );
 
         // Validate provider
@@ -60,7 +61,7 @@ export function createBulkCommand(): Command {
         console.log('');
 
         // Initialize client
-        const client = new PushClient(mergedConfig);
+        const client = new PushClient(mergedConfig as unknown as PushClientConfig);
 
         // Parse default data
         const defaultData = InputParser.parseDataArgument(options.data);
@@ -68,13 +69,13 @@ export function createBulkCommand(): Command {
         // Build messages
         const pushMessages = messages.map((msg) => {
           const builder = new MessageBuilder()
-            .setToken(msg.token)
-            .setTitle(msg.title || options.title || '')
-            .setBody(msg.body || options.body || '');
+            .token(msg.token)
+            .title(msg.title || options.title || '')
+            .body(msg.body || options.body || '');
 
-          const messageData = { ...defaultData, ...msg.data };
+          const messageData = { ...defaultData, ...(msg.data || {}) };
           if (Object.keys(messageData).length > 0) {
-            builder.setData(messageData);
+            builder.data(messageData as Record<string, string>);
           }
 
           return builder.build();
@@ -82,12 +83,11 @@ export function createBulkCommand(): Command {
 
         // Send bulk
         const startTime = Date.now();
-        let processedCount = 0;
 
         console.log(Formatter.info('Sending messages...'));
         console.log('');
 
-        const result = await client.sendBulk(pushMessages, provider as 'fcm' | 'expo');
+        const result = await client.sendBulk(pushMessages);
         const duration = Date.now() - startTime;
 
         // Display results
@@ -116,8 +116,8 @@ export function createBulkCommand(): Command {
         console.log(
           Formatter.createSummaryTable({
             total: result.total,
-            success: result.successful,
-            failed: result.failed,
+            success: result.successCount,
+            failed: result.failureCount,
             duration,
           })
         );
@@ -125,9 +125,9 @@ export function createBulkCommand(): Command {
         console.log('');
 
         // Close client
-        await client.close();
+        await client.shutdown();
 
-        process.exit(result.failed === 0 ? 0 : 1);
+        process.exit(result.failureCount === 0 ? 0 : 1);
       } catch (error) {
         console.error(
           Formatter.error(

@@ -14,7 +14,7 @@ export function createQueueCommand(): Command {
     .description('Manage queue operations')
     .argument('<action>', 'Action (status, clear, pause, resume)')
     .option('-c, --config <path>', 'Path to config file')
-    .action(async (action: string, options: QueueOptions) => {
+    .action(async (action: string, _options: QueueOptions) => {
       try {
         console.log(Formatter.header('\n⚙️  Queue Management\n'));
 

@@ -6,6 +6,8 @@
 import { Command } from 'commander';
 import { PushClient } from '../../client/PushClient.js';
 import { MessageBuilder } from '../../builder/MessageBuilder.js';
+import { MessagePriority } from '../../types/message.types.js';
+import type { PushClientConfig } from '../../types/config.types.js';
 import { Formatter } from '../utils/formatter.js';
 import { InputParser } from '../utils/input-parser.js';
 import { ConfigLoader } from '../utils/config-loader.js';
@@ -35,7 +37,7 @@ export function createSendCommand(): Command {
         const envConfig = ConfigLoader.loadEnvVars();
         const mergedConfig = ConfigLoader.mergeWithOptions(
           { ...envConfig, ...config },
-          options
+          options as unknown as Record<string, unknown>
         );
 
         // Validate provider
@@ -47,29 +49,29 @@ export function createSendCommand(): Command {
         }
 
         // Initialize client
-        const client = new PushClient(mergedConfig);
+        const client = new PushClient(mergedConfig as unknown as PushClientConfig);
 
         // Parse data
         const data = InputParser.parseDataArgument(options.data);
 
         // Build message
         const builder = new MessageBuilder()
-          .setToken(options.token);
+          .token(options.token);
 
-        if (options.title) builder.setTitle(options.title);
-        if (options.body) builder.setBody(options.body);
-        if (data) builder.setData(data);
-        if (options.badge) builder.setBadge(parseInt(options.badge.toString()));
-        if (options.sound) builder.setSound(options.sound);
+        if (options.title) builder.title(options.title);
+        if (options.body) builder.body(options.body);
+        if (data) builder.data(data as Record<string, string>);
+        if (options.badge) builder.badge(parseInt(options.badge.toString()));
+        if (options.sound) builder.sound(options.sound);
 
         // Set priority
         if (options.priority) {
-          const priorityMap: Record<string, 'high' | 'normal' | 'low'> = {
-            high: 'high',
-            normal: 'normal',
-            low: 'low',
+          const priorityMap: Record<string, MessagePriority> = {
+            high: MessagePriority.HIGH,
+            normal: MessagePriority.NORMAL,
+            low: MessagePriority.LOW,
           };
-          builder.setPriority(priorityMap[options.priority] || 'normal');
+          builder.priority(priorityMap[options.priority] || MessagePriority.NORMAL);
         }
 
         const message = builder.build();
@@ -82,7 +84,7 @@ export function createSendCommand(): Command {
         console.log('');
 
         const startTime = Date.now();
-        const result = await client.send(message, provider as 'fcm' | 'expo');
+        const result = await client.send(message);
         const duration = Date.now() - startTime;
 
         // Display result
@@ -102,7 +104,7 @@ export function createSendCommand(): Command {
         console.log('');
 
         // Close client
-        await client.close();
+        await client.shutdown();
 
         process.exit(result.success ? 0 : 1);
       } catch (error) {
