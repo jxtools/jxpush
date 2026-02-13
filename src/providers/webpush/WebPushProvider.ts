@@ -60,9 +60,8 @@ export class WebPushProvider extends Provider {
 
     try {
       // Extract subscription from token (token should be JSON stringified subscription)
-      const subscription = typeof message.token === 'string'
-        ? JSON.parse(message.token)
-        : message.token;
+      const subscription =
+        typeof message.token === 'string' ? JSON.parse(message.token) : message.token;
 
       // Build notification payload
       const payload = this.buildPayload(message);
@@ -74,11 +73,7 @@ export class WebPushProvider extends Provider {
       };
 
       // Send notification
-      await webpush.sendNotification(
-        subscription,
-        JSON.stringify(payload),
-        options
-      );
+      await webpush.sendNotification(subscription, JSON.stringify(payload), options);
 
       return {
         success: true,
@@ -187,7 +182,9 @@ export class WebPushProvider extends Provider {
   /**
    * Map message priority to web push urgency
    */
-  private mapPriority(priority?: 'high' | 'normal' | 'low'): 'very-low' | 'low' | 'normal' | 'high' {
+  private mapPriority(
+    priority?: 'high' | 'normal' | 'low'
+  ): 'very-low' | 'low' | 'normal' | 'high' {
     switch (priority) {
       case 'high':
         return 'high';

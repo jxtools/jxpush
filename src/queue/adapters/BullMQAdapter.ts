@@ -43,19 +43,15 @@ export class BullMQAdapter extends BaseQueueAdapter {
       maxAttempts?: number;
     }
   ): Promise<string> {
-    const job = await this.queue.add(
-      'push-notification',
-      data,
-      {
-        priority: options?.priority,
-        delay: options?.delay,
-        attempts: options?.maxAttempts || this.config.maxRetries || 3,
-        backoff: {
-          type: 'exponential',
-          delay: this.config.retryDelay || 1000,
-        },
-      }
-    );
+    const job = await this.queue.add('push-notification', data, {
+      priority: options?.priority,
+      delay: options?.delay,
+      attempts: options?.maxAttempts || this.config.maxRetries || 3,
+      backoff: {
+        type: 'exponential',
+        delay: this.config.retryDelay || 1000,
+      },
+    });
 
     return job.id!;
   }
@@ -179,14 +175,10 @@ export class BullMQAdapter extends BaseQueueAdapter {
       async (job) => {
         const startTime = Date.now();
 
-        try {
-          await processor(job);
+        await processor(job);
 
-          const processingTime = Date.now() - startTime;
-          this.updateAvgProcessingTime(processingTime);
-        } catch (error) {
-          throw error;
-        }
+        const processingTime = Date.now() - startTime;
+        this.updateAvgProcessingTime(processingTime);
       },
       {
         connection: this.queue.opts.connection,

@@ -65,17 +65,10 @@ export class RedisQueueAdapter extends BaseQueueAdapter {
     if (options?.delay && options.delay > 0) {
       // Use sorted set for delayed jobs
       const executeAt = Date.now() + options.delay;
-      await this.redis.zadd(
-        `${this.keyPrefix}delayed`,
-        executeAt,
-        JSON.stringify(job)
-      );
+      await this.redis.zadd(`${this.keyPrefix}delayed`, executeAt, JSON.stringify(job));
     } else {
       // Use list for immediate jobs (right push for FIFO)
-      await this.redis.rpush(
-        `${this.keyPrefix}pending`,
-        JSON.stringify(job)
-      );
+      await this.redis.rpush(`${this.keyPrefix}pending`, JSON.stringify(job));
     }
 
     this.updateMetrics({ pending: await this.size() });
@@ -101,11 +94,7 @@ export class RedisQueueAdapter extends BaseQueueAdapter {
 
     // Add to processing set
     this.processingSet.add(job.id);
-    await this.redis.hset(
-      `${this.keyPrefix}processing`,
-      job.id,
-      JSON.stringify(job)
-    );
+    await this.redis.hset(`${this.keyPrefix}processing`, job.id, JSON.stringify(job));
 
     this.updateMetrics({
       pending: await this.size(),
@@ -161,11 +150,7 @@ export class RedisQueueAdapter extends BaseQueueAdapter {
       const delay = this.config.retryDelay! * Math.pow(2, job.attempts - 1);
       const executeAt = Date.now() + delay;
 
-      await this.redis.zadd(
-        `${this.keyPrefix}delayed`,
-        executeAt,
-        JSON.stringify(job)
-      );
+      await this.redis.zadd(`${this.keyPrefix}delayed`, executeAt, JSON.stringify(job));
     } else {
       // Max retries reached, move to failed
       await this.redis.hset(
@@ -243,11 +228,7 @@ export class RedisQueueAdapter extends BaseQueueAdapter {
     const now = Date.now();
 
     // Get all jobs with score <= now
-    const jobs = await this.redis.zrangebyscore(
-      `${this.keyPrefix}delayed`,
-      0,
-      now
-    );
+    const jobs = await this.redis.zrangebyscore(`${this.keyPrefix}delayed`, 0, now);
 
     if (jobs.length === 0) {
       return;

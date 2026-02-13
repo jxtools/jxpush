@@ -1,7 +1,14 @@
 /**
- * jxpush - Production-grade unified messaging and push delivery engine
+ * jxpush - Zero-bloat modular messaging engine
  * Main entry point
  */
+
+// Config helper
+export { defineConfig } from './config.js';
+
+// Core registries
+export { ProviderRegistry } from './core/ProviderRegistry.js';
+export { AdapterRegistry } from './core/AdapterRegistry.js';
 
 // Main client
 export { PushClient } from './client/PushClient.js';
@@ -15,10 +22,18 @@ export { ExpoProvider } from './providers/expo/ExpoProvider.js';
 export { WebPushProvider } from './providers/webpush/WebPushProvider.js';
 
 // Queue Adapters
-export { QueueAdapter, QueueJob, QueueMetrics, QueueAdapterConfig } from './queue/adapters/IQueueAdapter.js';
+export {
+  QueueAdapter,
+  QueueJob,
+  QueueMetrics,
+  QueueAdapterConfig,
+} from './queue/adapters/IQueueAdapter.js';
 export { BaseQueueAdapter } from './queue/adapters/BaseQueueAdapter.js';
 export { RedisQueueAdapter, RedisQueueAdapterConfig } from './queue/adapters/RedisQueueAdapter.js';
 export { BullMQAdapter, BullMQAdapterConfig } from './queue/adapters/BullMQAdapter.js';
+
+// In-Memory Queue
+export { InMemoryQueue } from './queue/InMemoryQueue.js';
 
 // Email Adapters
 export { IEmailAdapter } from './adapters/email/IEmailAdapter.js';
@@ -101,11 +116,7 @@ export {
 } from './types/template.types.js';
 
 // Types - Localization
-export {
-  Locale,
-  LocaleData,
-  LocalizationConfig,
-} from './types/localization.types.js';
+export { Locale, LocaleData, LocalizationConfig } from './types/localization.types.js';
 
 // Errors
 export { PushError, ErrorCode } from './errors/PushError.js';

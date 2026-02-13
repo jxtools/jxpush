@@ -55,7 +55,11 @@ export class LocalizationEngine {
   /**
    * Translate multiple keys
    */
-  translateBatch(keys: string[], locale?: string, variables?: Record<string, unknown>): Record<string, string> {
+  translateBatch(
+    keys: string[],
+    locale?: string,
+    variables?: Record<string, unknown>
+  ): Record<string, string> {
     const result: Record<string, string> = {};
 
     for (const key of keys) {

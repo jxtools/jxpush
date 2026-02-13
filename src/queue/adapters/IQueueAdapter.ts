@@ -27,11 +27,14 @@ export interface QueueAdapter {
   /**
    * Enqueue a job
    */
-  enqueue<T>(data: T, options?: {
-    priority?: number;
-    delay?: number;
-    maxAttempts?: number;
-  }): Promise<string>;
+  enqueue<T>(
+    data: T,
+    options?: {
+      priority?: number;
+      delay?: number;
+      maxAttempts?: number;
+    }
+  ): Promise<string>;
 
   /**
    * Dequeue next job
@@ -41,10 +44,14 @@ export interface QueueAdapter {
   /**
    * Schedule a delayed job
    */
-  scheduleDelayed<T>(data: T, delayMs: number, options?: {
-    priority?: number;
-    maxAttempts?: number;
-  }): Promise<string>;
+  scheduleDelayed<T>(
+    data: T,
+    delayMs: number,
+    options?: {
+      priority?: number;
+      maxAttempts?: number;
+    }
+  ): Promise<string>;
 
   /**
    * Mark job as completed

@@ -44,7 +44,9 @@ export async function run(): Promise<void> {
     console.log('  $ npx jxpush bulk --provider fcm --file messages.json');
     console.log('');
     console.log('  # Send to a topic');
-    console.log('  $ npx jxpush topic --provider fcm --topic news --title "Breaking" --body "News"');
+    console.log(
+      '  $ npx jxpush topic --provider fcm --topic news --title "Breaking" --body "News"'
+    );
     console.log('');
     console.log('  # Check queue status');
     console.log('  $ npx jxpush queue status');
@@ -60,14 +62,20 @@ export async function run(): Promise<void> {
   try {
     await program.parseAsync(process.argv);
   } catch (error) {
-    console.error(Formatter.error(`CLI Error: ${error instanceof Error ? error.message : 'Unknown error'}`));
+    console.error(
+      Formatter.error(`CLI Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    );
     process.exit(1);
   }
 }
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (error) => {
-  console.error(Formatter.error(`Unhandled rejection: ${error instanceof Error ? error.message : 'Unknown error'}`));
+  console.error(
+    Formatter.error(
+      `Unhandled rejection: ${error instanceof Error ? error.message : 'Unknown error'}`
+    )
+  );
   process.exit(1);
 });
 

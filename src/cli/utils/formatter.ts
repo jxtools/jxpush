@@ -54,19 +54,13 @@ export class Formatter {
    */
   static createResultsTable(results: Array<{ status: string; message: string; token?: string }>) {
     const table = new Table({
-      head: [
-        chalk.cyan('Status'),
-        chalk.cyan('Token'),
-        chalk.cyan('Message'),
-      ],
+      head: [chalk.cyan('Status'), chalk.cyan('Token'), chalk.cyan('Message')],
       colWidths: [10, 40, 50],
       wordWrap: true,
     });
 
     results.forEach((result) => {
-      const statusIcon = result.status === 'success'
-        ? chalk.green('✓')
-        : chalk.red('✗');
+      const statusIcon = result.status === 'success' ? chalk.green('✓') : chalk.red('✗');
 
       table.push([
         statusIcon + ' ' + result.status,

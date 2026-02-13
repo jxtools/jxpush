@@ -18,7 +18,11 @@ export interface IEmailAdapter {
   /**
    * Send templated email
    */
-  sendTemplate?(templateId: string, data: Record<string, unknown>, to: string | string[]): Promise<EmailSendResult>;
+  sendTemplate?(
+    templateId: string,
+    data: Record<string, unknown>,
+    to: string | string[]
+  ): Promise<EmailSendResult>;
 
   /**
    * Close adapter and cleanup resources

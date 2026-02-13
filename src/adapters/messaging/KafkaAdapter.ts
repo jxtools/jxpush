@@ -5,7 +5,11 @@
 
 import { Kafka, Producer, CompressionTypes } from 'kafkajs';
 import type { IMessagingAdapter } from './IMessagingAdapter.js';
-import type { MessagingMessage, MessagingResult, KafkaConfig } from '../../types/messaging.types.js';
+import type {
+  MessagingMessage,
+  MessagingResult,
+  KafkaConfig,
+} from '../../types/messaging.types.js';
 
 export class KafkaAdapter implements IMessagingAdapter {
   private kafka: Kafka;
@@ -17,7 +21,8 @@ export class KafkaAdapter implements IMessagingAdapter {
       clientId: config.clientId,
       brokers: config.brokers,
       ssl: config.ssl,
-      sasl: config.sasl as any, // Type assertion needed for SASL config
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sasl: config.sasl as any,
       connectionTimeout: config.connectionTimeout || 10000,
       requestTimeout: config.requestTimeout || 30000,
     });
@@ -79,25 +84,31 @@ export class KafkaAdapter implements IMessagingAdapter {
       await this.connect();
 
       // Group messages by topic
-      const messagesByTopic = messages.reduce((acc, msg) => {
-        if (!acc[msg.topic]) {
-          acc[msg.topic] = [];
-        }
-        acc[msg.topic].push({
-          key: msg.key,
-          value: JSON.stringify(msg.value),
-          headers: msg.headers,
-          partition: msg.partition,
-          timestamp: (msg.timestamp || Date.now()).toString(),
-        });
-        return acc;
-      }, {} as Record<string, Array<{
-        key?: string;
-        value: string;
-        headers?: Record<string, string>;
-        partition?: number;
-        timestamp: string;
-      }>>);
+      const messagesByTopic = messages.reduce(
+        (acc, msg) => {
+          if (!acc[msg.topic]) {
+            acc[msg.topic] = [];
+          }
+          acc[msg.topic].push({
+            key: msg.key,
+            value: JSON.stringify(msg.value),
+            headers: msg.headers,
+            partition: msg.partition,
+            timestamp: (msg.timestamp || Date.now()).toString(),
+          });
+          return acc;
+        },
+        {} as Record<
+          string,
+          Array<{
+            key?: string;
+            value: string;
+            headers?: Record<string, string>;
+            partition?: number;
+            timestamp: string;
+          }>
+        >
+      );
 
       // Send to each topic
       const results: MessagingResult[] = [];

@@ -14,7 +14,7 @@ describe('ResendAdapter', () => {
   let mockSend: jest.Mock;
 
   beforeEach(() => {
-    mockSend = jest.fn().mockResolvedValue({ id: 'email-123' });
+    mockSend = jest.fn().mockResolvedValue({ data: { id: 'email-123' } });
 
     (Resend as jest.MockedClass<typeof Resend>).mockImplementation(() => ({
       emails: {

@@ -30,7 +30,9 @@ export function createTopicCommand(): Command {
         }
 
         console.log(Formatter.warning('Topic messaging feature coming soon!'));
-        console.log(Formatter.info('This will allow sending to FCM topics and condition-based messaging'));
+        console.log(
+          Formatter.info('This will allow sending to FCM topics and condition-based messaging')
+        );
         console.log('');
         console.log(Formatter.keyValue('Topic', options.topic));
         if (options.title) console.log(Formatter.keyValue('Title', options.title));

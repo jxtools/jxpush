@@ -50,13 +50,13 @@ export function createSendCommand(): Command {
 
         // Initialize client
         const client = new PushClient(mergedConfig as unknown as PushClientConfig);
+        await client.initialize();
 
         // Parse data
         const data = InputParser.parseDataArgument(options.data);
 
         // Build message
-        const builder = new MessageBuilder()
-          .token(options.token);
+        const builder = new MessageBuilder().token(options.token);
 
         if (options.title) builder.title(options.title);
         if (options.body) builder.body(options.body);
@@ -108,7 +108,11 @@ export function createSendCommand(): Command {
 
         process.exit(result.success ? 0 : 1);
       } catch (error) {
-        console.error(Formatter.error(`Failed to send message: ${error instanceof Error ? error.message : 'Unknown error'}`));
+        console.error(
+          Formatter.error(
+            `Failed to send message: ${error instanceof Error ? error.message : 'Unknown error'}`
+          )
+        );
         process.exit(1);
       }
     });

@@ -44,7 +44,11 @@ export class InputParser {
     try {
       return this.parseJSON<Record<string, unknown>>(data);
     } catch (error) {
-      console.error(Formatter.error(`Failed to parse data argument: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      console.error(
+        Formatter.error(
+          `Failed to parse data argument: ${error instanceof Error ? error.message : 'Unknown error'}`
+        )
+      );
       process.exit(1);
     }
   }
@@ -52,10 +56,7 @@ export class InputParser {
   /**
    * Validate required fields
    */
-  static validateRequired(
-    options: Record<string, unknown>,
-    requiredFields: string[]
-  ): void {
+  static validateRequired(options: Record<string, unknown>, requiredFields: string[]): void {
     const missing = requiredFields.filter((field) => !options[field]);
 
     if (missing.length > 0) {
@@ -84,7 +85,9 @@ export class InputParser {
         return data.tokens;
       }
 
-      throw new Error('Invalid tokens file format. Expected array of strings or object with "tokens" property.');
+      throw new Error(
+        'Invalid tokens file format. Expected array of strings or object with "tokens" property.'
+      );
     }
 
     // Try to parse as JSON array

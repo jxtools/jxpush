@@ -34,7 +34,9 @@ export function createTemplateCommand(): Command {
             console.log(Formatter.info('Available Templates:'));
             console.log('');
             console.log(Formatter.warning('Template listing feature coming soon!'));
-            console.log(Formatter.info('This will list all available templates from the templates directory'));
+            console.log(
+              Formatter.info('This will list all available templates from the templates directory')
+            );
             break;
 
           case 'render':

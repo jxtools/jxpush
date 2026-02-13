@@ -4,7 +4,12 @@
  */
 
 import Handlebars from 'handlebars';
-import type { Template, TemplateData, TemplateConfig, RenderedTemplate } from '../types/template.types.js';
+import type {
+  Template,
+  TemplateData,
+  TemplateConfig,
+  RenderedTemplate,
+} from '../types/template.types.js';
 
 export class TemplateEngine {
   private config: TemplateConfig;
@@ -26,7 +31,7 @@ export class TemplateEngine {
    * Register a template
    */
   registerTemplate(template: Template): void {
-    const key = this.getTemplateKey(template.id, template.locale);
+    const key = this.getTemplateKey(template.id, template.locale || this.config.defaultLocale);
 
     // Compile template
     const compiled = Handlebars.compile(template.content);
@@ -53,7 +58,9 @@ export class TemplateEngine {
       }
 
       if (!compiled) {
-        throw new Error(`Template not found: ${templateId} (locale: ${locale || this.config.defaultLocale})`);
+        throw new Error(
+          `Template not found: ${templateId} (locale: ${locale || this.config.defaultLocale})`
+        );
       }
     }
 
@@ -81,7 +88,7 @@ export class TemplateEngine {
    */
   hasTemplate(templateId: string, locale?: string): boolean {
     const key = this.getTemplateKey(templateId, locale || this.config.defaultLocale);
-    return this.templates.has(key);
+    return this.rawTemplates.has(key);
   }
 
   /**
@@ -96,7 +103,7 @@ export class TemplateEngine {
    */
   clearCache(): void {
     this.templates.clear();
-    this.rawTemplates.clear();
+    // Note: rawTemplates are kept so templates remain registered
   }
 
   /**

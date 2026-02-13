@@ -28,18 +28,25 @@ export abstract class BaseQueueAdapter implements QueueAdapter {
     };
   }
 
-  abstract enqueue<T>(data: T, options?: {
-    priority?: number;
-    delay?: number;
-    maxAttempts?: number;
-  }): Promise<string>;
+  abstract enqueue<T>(
+    data: T,
+    options?: {
+      priority?: number;
+      delay?: number;
+      maxAttempts?: number;
+    }
+  ): Promise<string>;
 
   abstract dequeue<T>(): Promise<QueueJob<T> | null>;
 
-  abstract scheduleDelayed<T>(data: T, delayMs: number, options?: {
-    priority?: number;
-    maxAttempts?: number;
-  }): Promise<string>;
+  abstract scheduleDelayed<T>(
+    data: T,
+    delayMs: number,
+    options?: {
+      priority?: number;
+      maxAttempts?: number;
+    }
+  ): Promise<string>;
 
   abstract complete(jobId: string): Promise<void>;
 

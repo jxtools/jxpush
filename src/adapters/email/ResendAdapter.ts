@@ -30,7 +30,8 @@ export class ResendAdapter implements IEmailAdapter {
           filename: att.filename,
           content: att.content,
         })),
-      } as any); // Type assertion for Resend API compatibility
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       return {
         success: true,

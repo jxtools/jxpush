@@ -46,9 +46,9 @@ export function createBulkCommand(): Command {
 
         // Load messages from file
         console.log(Formatter.info(`Loading messages from: ${options.file}`));
-        const fileData = InputParser.readJSONFile<BulkMessageInput[] | { messages: BulkMessageInput[] }>(
-          options.file
-        );
+        const fileData = InputParser.readJSONFile<
+          BulkMessageInput[] | { messages: BulkMessageInput[] }
+        >(options.file);
 
         const messages = Array.isArray(fileData) ? fileData : fileData.messages;
 
@@ -62,6 +62,7 @@ export function createBulkCommand(): Command {
 
         // Initialize client
         const client = new PushClient(mergedConfig as unknown as PushClientConfig);
+        await client.initialize();
 
         // Parse default data
         const defaultData = InputParser.parseDataArgument(options.data);

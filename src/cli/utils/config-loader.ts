@@ -74,7 +74,9 @@ export class ConfigLoader {
 
       return config as JxPushConfig;
     } catch (error) {
-      throw new Error(`Failed to import config: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to import config: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -93,23 +95,23 @@ export class ConfigLoader {
       // Merge nested objects
       fcm: {
         ...(config.fcm || {}),
-        ...(options.fcm as Record<string, unknown> || {}),
+        ...((options.fcm as Record<string, unknown>) || {}),
       },
       expo: {
         ...(config.expo || {}),
-        ...(options.expo as Record<string, unknown> || {}),
+        ...((options.expo as Record<string, unknown>) || {}),
       },
       queue: {
         ...(config.queue || {}),
-        ...(options.queue as Record<string, unknown> || {}),
+        ...((options.queue as Record<string, unknown>) || {}),
       },
       rateLimit: {
         ...(config.rateLimit || {}),
-        ...(options.rateLimit as Record<string, unknown> || {}),
+        ...((options.rateLimit as Record<string, unknown>) || {}),
       },
       retry: {
         ...(config.retry || {}),
-        ...(options.retry as Record<string, unknown> || {}),
+        ...((options.retry as Record<string, unknown>) || {}),
       },
     };
   }

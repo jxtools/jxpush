@@ -9,11 +9,15 @@ export interface IMessagingAdapter {
   /**
    * Publish a message to a topic
    */
-  publish(topic: string, message: unknown, options?: {
-    key?: string;
-    headers?: Record<string, string>;
-    partition?: number;
-  }): Promise<MessagingResult>;
+  publish(
+    topic: string,
+    message: unknown,
+    options?: {
+      key?: string;
+      headers?: Record<string, string>;
+      partition?: number;
+    }
+  ): Promise<MessagingResult>;
 
   /**
    * Publish multiple messages in batch

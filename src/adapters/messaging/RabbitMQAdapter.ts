@@ -5,11 +5,17 @@
 
 import amqp from 'amqplib';
 import type { IMessagingAdapter } from './IMessagingAdapter.js';
-import type { MessagingMessage, MessagingResult, RabbitMQConfig } from '../../types/messaging.types.js';
+import type {
+  MessagingMessage,
+  MessagingResult,
+  RabbitMQConfig,
+} from '../../types/messaging.types.js';
 
 export class RabbitMQAdapter implements IMessagingAdapter {
   private config: RabbitMQConfig;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private connection: any = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private channel: any = null;
   private connected: boolean = false;
 
@@ -32,13 +38,9 @@ export class RabbitMQAdapter implements IMessagingAdapter {
       await this.channel.prefetch(this.config.prefetch!);
 
       // Assert exchange
-      await this.channel.assertExchange(
-        this.config.exchange!,
-        this.config.exchangeType!,
-        {
-          durable: this.config.durable,
-        }
-      );
+      await this.channel.assertExchange(this.config.exchange!, this.config.exchangeType!, {
+        durable: this.config.durable,
+      });
 
       this.connected = true;
     }
@@ -58,17 +60,12 @@ export class RabbitMQAdapter implements IMessagingAdapter {
       const routingKey = options?.key || topic;
       const messageBuffer = Buffer.from(JSON.stringify(message));
 
-      const published = this.channel!.publish(
-        this.config.exchange!,
-        routingKey,
-        messageBuffer,
-        {
-          persistent: this.config.durable,
-          headers: options?.headers,
-          timestamp: Date.now(),
-          contentType: 'application/json',
-        }
-      );
+      const published = this.channel!.publish(this.config.exchange!, routingKey, messageBuffer, {
+        persistent: this.config.durable,
+        headers: options?.headers,
+        timestamp: Date.now(),
+        contentType: 'application/json',
+      });
 
       if (!published) {
         return {
