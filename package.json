@@ -1,6 +1,6 @@
 {
   "name": "jxpush",
-  "version": "2.0.0",
+  "version": "1.0.4",
   "description": "Production-grade unified messaging and push delivery engine for Node.js with FCM, Expo, Web Push, Email, Kafka, and RabbitMQ support",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
