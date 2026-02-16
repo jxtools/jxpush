@@ -2,7 +2,7 @@
  * Firebase Cloud Messaging (FCM) Provider
  */
 
-import * as admin from 'firebase-admin';
+import type * as admin from 'firebase-admin';
 import { Provider } from '../base/Provider.js';
 import { ProviderCapabilities } from '../../types/provider.types.js';
 import { PushMessage, SendResult, BulkSendResult, FCMMessage } from '../../types/message.types.js';
@@ -20,6 +20,7 @@ import { chunk } from '../../utils/chunk.js';
 export class FCMProvider extends Provider {
   private config: FCMConfig;
   private app?: admin.app.App;
+  private admin!: typeof admin; // Keep a reference to the dynamically imported module
 
   constructor(config: FCMConfig, logger: Logger) {
     super(logger);
@@ -54,14 +55,27 @@ export class FCMProvider extends Provider {
     try {
       this.logger.info('Initializing FCM provider...');
 
+      // Lazy load firebase-admin
+      try {
+        // @ts-ignore
+        const adminModule = await import('firebase-admin');
+        this.admin = adminModule.default || adminModule;
+      } catch (error) {
+        throw new ProviderError(
+          'Failed to load firebase-admin module. Please install it: npm install firebase-admin',
+          ProviderType.FCM,
+          ErrorCode.PROVIDER_INIT_FAILED
+        );
+      }
+
       // Load service account
       let credential: admin.credential.Credential;
 
       if (this.config.serviceAccountPath) {
-        credential = admin.credential.cert(this.config.serviceAccountPath);
+        credential = this.admin.credential.cert(this.config.serviceAccountPath);
         this.logger.debug('Loaded FCM credentials from file');
       } else if (this.config.serviceAccount) {
-        credential = admin.credential.cert(this.config.serviceAccount as admin.ServiceAccount);
+        credential = this.admin.credential.cert(this.config.serviceAccount as admin.ServiceAccount);
         this.logger.debug('Loaded FCM credentials from object');
       } else {
         throw new ProviderError(
@@ -72,7 +86,7 @@ export class FCMProvider extends Provider {
       }
 
       // Initialize Firebase Admin
-      this.app = admin.initializeApp({
+      this.app = this.admin.initializeApp({
         credential,
         projectId: this.config.projectId,
       });
@@ -114,7 +128,7 @@ export class FCMProvider extends Provider {
       const fcmMessage = this.convertToFCMMessage(message);
 
       // Send via FCM - cast to admin.messaging.Message
-      const messageId = await admin.messaging().send(fcmMessage as admin.messaging.Message);
+      const messageId = await this.admin.messaging().send(fcmMessage as admin.messaging.Message);
 
       this.logger.debug('FCM message sent successfully', { messageId });
 
@@ -233,7 +247,7 @@ export class FCMProvider extends Provider {
         };
 
         // Send multicast
-        const response = await admin.messaging().sendEachForMulticast(multicastMessage);
+        const response = await this.admin.messaging().sendEachForMulticast(multicastMessage);
 
         // Process responses
         response.responses.forEach((resp, index) => {

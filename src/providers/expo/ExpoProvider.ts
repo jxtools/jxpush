@@ -2,13 +2,13 @@
  * Expo Push Notification Provider
  */
 
-import { Expo } from 'expo-server-sdk';
-import type { ExpoPushMessage, ExpoPushSuccessTicket } from 'expo-server-sdk';
+import type { Expo, ExpoPushMessage, ExpoPushSuccessTicket } from 'expo-server-sdk';
 import { Provider } from '../base/Provider.js';
 import { ProviderCapabilities } from '../../types/provider.types.js';
 import { PushMessage, SendResult, BulkSendResult } from '../../types/message.types.js';
 import { ProviderType, ExpoConfig } from '../../types/config.types.js';
-import { Logger } from '../../utils/logger.js';
+import { Logger, createLogger } from '../../utils/logger.js';
+import { LogLevel } from '../../types/config.types.js';
 import { validateExpoToken } from '../../validation/tokenValidator.js';
 import { validateMessage } from '../../validation/messageValidator.js';
 import { ProviderError } from '../../errors/ProviderError.js';
@@ -19,13 +19,13 @@ import { chunk } from '../../utils/chunk.js';
  * Expo Provider implementation
  */
 export class ExpoProvider extends Provider {
-  private expo: Expo;
+  private config: ExpoConfig;
+  private expo!: Expo;
 
-  constructor(config: ExpoConfig, logger: Logger) {
-    super(logger);
-    this.expo = new Expo({
-      accessToken: config.accessToken,
-    });
+  constructor(config: ExpoConfig, logger?: Logger) {
+    super(logger || createLogger(LogLevel.WARN));
+    this.config = config;
+    // Expo initialization moved to initialize()
   }
 
   /**
@@ -56,8 +56,23 @@ export class ExpoProvider extends Provider {
     try {
       this.logger.info('Initializing Expo provider...');
 
-      // Expo SDK doesn't require explicit initialization
-      // Just verify the SDK is ready
+      // Lazy load expo-server-sdk
+      let ExpoClass: any;
+      try {
+        // @ts-ignore
+        const expoModule = (await import('expo-server-sdk')) as any;
+        ExpoClass = expoModule.Expo || expoModule.default?.Expo;
+      } catch (error) {
+        throw new ProviderError(
+          'Failed to load expo-server-sdk module. Please install it: npm install expo-server-sdk',
+          ProviderType.EXPO,
+          ErrorCode.PROVIDER_INIT_FAILED
+        );
+      }
+
+      this.expo = new ExpoClass({
+        accessToken: (this.config as ExpoConfig).accessToken,
+      });
       this.initialized = true;
       this.logger.info('Expo provider initialized successfully');
     } catch (error) {
@@ -243,7 +258,12 @@ export class ExpoProvider extends Provider {
    * Validate Expo token
    */
   validateToken(token: string): boolean {
-    return validateExpoToken(token) && Expo.isExpoPushToken(token);
+    // We can't use Expo.isExpoPushToken static method easily without importing the class.
+    // We can use the instance method if available or dynamic import.
+    // For validation, we might want to avoid async.
+    // However, validateToken is synchronous in IProvider.
+    // We can check the pattern ourselves or just rely on validateExpoToken from our validator.
+    return validateExpoToken(token);
   }
 
   /**

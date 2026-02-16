@@ -3,17 +3,20 @@
  * Browser push notifications using VAPID
  */
 
-import webpush from 'web-push';
+// import webpush from 'web-push'; // Lazy loaded
 import { Provider } from '../base/Provider.js';
 import type { PushMessage, SendResult, BulkSendResult } from '../../types/message.types.js';
 import type { ProviderCapabilities } from '../../types/provider.types.js';
 import { ProviderType, LogLevel } from '../../types/config.types.js';
 import type { WebPushConfig, WebPushMessage, WebPushOptions } from '../../types/webpush.types.js';
 import { ProviderError } from '../../errors/ProviderError.js';
+import { ErrorCode } from '../../errors/PushError.js';
 import { Logger } from '../../utils/logger.js';
+
 
 export class WebPushProvider extends Provider {
   private config: WebPushConfig;
+  private webpush: any; // Type 'any' to avoid hard dependency on web-push types if not installed
 
   constructor(config: WebPushConfig, logger?: Logger) {
     super(logger || new Logger(LogLevel.INFO));
@@ -36,15 +39,28 @@ export class WebPushProvider extends Provider {
   }
 
   async initialize(): Promise<void> {
+    // Lazy load web-push
+    try {
+      // @ts-ignore
+      const webpushModule = await import('web-push');
+      this.webpush = webpushModule.default || webpushModule;
+    } catch (error) {
+      throw new ProviderError(
+        'Failed to load web-push module. Please install it: npm install web-push',
+        ProviderType.WEBPUSH,
+        ErrorCode.PROVIDER_INIT_FAILED
+      );
+    }
+
     // Set VAPID details
-    webpush.setVapidDetails(
+    this.webpush.setVapidDetails(
       this.config.vapidKeys.subject,
       this.config.vapidKeys.publicKey,
       this.config.vapidKeys.privateKey
     );
 
     if (this.config.gcmApiKey) {
-      webpush.setGCMAPIKey(this.config.gcmApiKey);
+      this.webpush.setGCMAPIKey(this.config.gcmApiKey);
     }
 
     this.initialized = true;
@@ -73,7 +89,7 @@ export class WebPushProvider extends Provider {
       };
 
       // Send notification
-      await webpush.sendNotification(subscription, JSON.stringify(payload), options);
+      await this.webpush.sendNotification(subscription, JSON.stringify(payload), options);
 
       return {
         success: true,
@@ -198,7 +214,13 @@ export class WebPushProvider extends Provider {
   /**
    * Generate VAPID keys (static utility method)
    */
-  static generateVAPIDKeys(): { publicKey: string; privateKey: string } {
-    return webpush.generateVAPIDKeys();
+  static async generateVAPIDKeys(): Promise<{ publicKey: string; privateKey: string }> {
+    try {
+      // @ts-ignore
+      const webpush = await import('web-push');
+      return (webpush.default || webpush).generateVAPIDKeys();
+    } catch (e) {
+      throw new Error('web-push not found. Please install it: npm install web-push');
+    }
   }
 }

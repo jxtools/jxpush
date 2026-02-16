@@ -31,7 +31,6 @@ const QUEUE_DEPS: Record<string, string> = {
   redis: 'ioredis@^5.9.3',
   bullmq: 'bullmq@^5.69.0 ioredis@^5.9.3',
   rabbitmq: 'amqplib@^0.10.9',
-  kafka: 'kafkajs@^2.2.4',
 };
 
 const FEATURE_DEPS: Record<string, string> = {
@@ -64,7 +63,6 @@ async function runSetup(): Promise<void> {
         { name: 'Redis', value: 'redis' },
         { name: 'BullMQ (Redis-based)', value: 'bullmq' },
         { name: 'RabbitMQ', value: 'rabbitmq' },
-        { name: 'Kafka', value: 'kafka' },
       ],
     },
     {
@@ -101,7 +99,7 @@ async function runSetup(): Promise<void> {
   ]);
 
   // Calculate dependencies
-  const depsToInstall: string[] = [];
+  const depsToInstall: string[] = ['jxpush'];
 
   answers.providers.forEach((provider) => {
     if (PROVIDER_DEPS[provider]) {
@@ -193,10 +191,7 @@ async function runSetup(): Promise<void> {
     console.log(chalk.gray('     $ docker run -d -p 5672:5672 rabbitmq\n'));
   }
 
-  if (answers.queueBackend === 'kafka') {
-    console.log(chalk.yellow('  2. Start Kafka:'));
-    console.log(chalk.gray('     $ docker-compose up -d kafka\n'));
-  }
+
 
   console.log(chalk.yellow('  3. Run example:'));
   console.log(
@@ -250,18 +245,27 @@ function generateConfig(answers: SetupAnswers): string {
     answers.queueBackend === 'memory'
       ? `    adapter: 'memory',`
       : `    adapter: '${answers.queueBackend}',
+    /**
+     * @type {import('jxpush').QueueConfig}
+     */
     ${answers.queueBackend}: {
       host: 'localhost',
-      port: ${answers.queueBackend === 'redis' || answers.queueBackend === 'bullmq' ? 6379 : answers.queueBackend === 'rabbitmq' ? 5672 : 9092},
+      port: ${answers.queueBackend === 'redis' || answers.queueBackend === 'bullmq' ? 6379 : 5672},
     },`;
 
   return `${imports}${exportPrefix}${isTS ? 'defineConfig' : ''}({
-  providers: {
-${providerConfigs.join(',\n')}
-  },
+  // Provider to use by default
+  provider: '${answers.providers[0]}',
+
+  // Provider configurations
+${providerConfigs.join(',\n')},
+
+  // Queue configuration
   queue: {
 ${queueConfig}
   },
+
+  // Optional features
   features: {
     templates: ${answers.features.includes('templates')},
     localization: ${answers.features.includes('localization')},
@@ -281,11 +285,11 @@ function generateProviderSetup(answers: SetupAnswers): string {
     .join('\n');
 
   return `${imports}
-import config from '../jxpush.config${isTS ? '' : '.js'}';
+import config from '../../jxpush.config${isTS ? '' : '.js'}';
 
 // Initialize providers based on config
 export const providers = {
-${answers.providers.map((p) => `  ${p}: new ${p.charAt(0).toUpperCase() + p.slice(1)}Provider(config.providers.${p}),`).join('\n')}
+${answers.providers.map((p) => `  ${p}: new ${p.charAt(0).toUpperCase() + p.slice(1)}Provider(config.${p}),`).join('\n')}
 };
 `;
 }
@@ -298,9 +302,9 @@ function generateQueueSetup(answers: SetupAnswers): string {
       : answers.queueBackend.charAt(0).toUpperCase() + answers.queueBackend.slice(1) + 'Adapter';
 
   return `import { ${adapterName} } from 'jxpush';
-import config from '../jxpush.config${isTS ? '' : '.js'}';
+import config from '../../jxpush.config${isTS ? '' : '.js'}';
 
-export const queue = new ${adapterName}(config.queue.${answers.queueBackend} || {});
+export const queue = new ${adapterName}(config.queue.maxSize || 0);
 `;
 }
 
@@ -308,7 +312,7 @@ function generateExample(answers: SetupAnswers): string {
   const isTS = answers.language === 'typescript';
 
   return `import { PushClient } from 'jxpush';
-import config from './jxpush.config${isTS ? '' : '.js'}';
+import config from '../jxpush.config${isTS ? '' : '.js'}';
 
 async function sendNotification() {
   const client = new PushClient(config);

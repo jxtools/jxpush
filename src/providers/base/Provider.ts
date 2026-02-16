@@ -4,7 +4,8 @@
 
 import { IProvider, ProviderCapabilities } from '../../types/provider.types.js';
 import { PushMessage, SendResult, BulkSendResult } from '../../types/message.types.js';
-import { Logger } from '../../utils/logger.js';
+import { Logger, createLogger } from '../../utils/logger.js';
+import { LogLevel } from '../../types/config.types.js';
 import { ProviderType } from '../../types/config.types.js';
 
 /**
@@ -14,8 +15,8 @@ export abstract class Provider implements IProvider {
   protected logger: Logger;
   protected initialized = false;
 
-  constructor(logger: Logger) {
-    this.logger = logger;
+  constructor(logger?: Logger) {
+    this.logger = logger || createLogger(LogLevel.WARN);
   }
 
   /**

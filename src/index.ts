@@ -42,7 +42,7 @@ export { SMTPAdapter } from './adapters/email/SMTPAdapter.js';
 
 // Messaging Adapters
 export { IMessagingAdapter } from './adapters/messaging/IMessagingAdapter.js';
-export { KafkaAdapter } from './adapters/messaging/KafkaAdapter.js';
+
 export { RabbitMQAdapter } from './adapters/messaging/RabbitMQAdapter.js';
 
 // Template Engine
@@ -103,7 +103,7 @@ export {
 export {
   MessagingMessage,
   MessagingResult,
-  KafkaConfig,
+
   RabbitMQConfig,
 } from './types/messaging.types.js';
 

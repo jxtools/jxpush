@@ -18,18 +18,7 @@ export interface MessagingResult {
   error?: Error;
 }
 
-export interface KafkaConfig {
-  clientId: string;
-  brokers: string[];
-  ssl?: boolean;
-  sasl?: {
-    mechanism: 'plain' | 'scram-sha-256' | 'scram-sha-512';
-    username: string;
-    password: string;
-  };
-  connectionTimeout?: number;
-  requestTimeout?: number;
-}
+
 
 export interface RabbitMQConfig {
   url: string; // amqp://user:pass@host:port/vhost

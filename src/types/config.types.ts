@@ -62,6 +62,12 @@ export interface ExpoConfig {
  */
 export interface QueueConfig {
   /**
+   * Queue adapter type ('memory', 'redis', 'bullmq', 'rabbitmq')
+   * @default 'memory'
+   */
+  adapter?: string;
+
+  /**
    * Maximum number of concurrent workers processing the queue
    * @default 5
    */

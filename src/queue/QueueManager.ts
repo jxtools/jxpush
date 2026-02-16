@@ -36,6 +36,7 @@ export class QueueManager {
       enabled: config.enabled ?? true,
       maxSize: config.maxSize ?? 0,
       autoStart: config.autoStart ?? true,
+      adapter: config.adapter ?? 'memory',
     };
 
     this.logger = logger;

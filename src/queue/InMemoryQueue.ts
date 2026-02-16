@@ -3,7 +3,8 @@
  */
 
 import { PushMessage } from '../types/message.types.js';
-import { Logger } from '../utils/logger.js';
+import { Logger, createLogger } from '../utils/logger.js';
+import { LogLevel } from '../types/config.types.js';
 import { EventEmitter } from 'events';
 
 /**
@@ -26,10 +27,10 @@ export class InMemoryQueue extends EventEmitter {
   private logger: Logger;
   private idCounter = 0;
 
-  constructor(maxSize = 0, logger: Logger) {
+  constructor(maxSize = 0, logger?: Logger) {
     super();
     this.maxSize = maxSize;
-    this.logger = logger;
+    this.logger = logger || createLogger(LogLevel.WARN);
   }
 
   /**

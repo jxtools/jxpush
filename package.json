@@ -1,7 +1,7 @@
 {
   "name": "jxpush",
-  "version": "2.0.0-beta.1",
-  "description": "Zero-bloat modular messaging engine for Node.js - install only what you need",
+  "version": "1.0.7",
+  "description": "Production-grade unified push notification library for Node.js",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
@@ -24,7 +24,7 @@
     "build": "yarn build:clean && yarn build:esm && yarn build:cjs && yarn build:types",
     "build:clean": "rm -rf dist",
     "build:esm": "tsc -p tsconfig.esm.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
     "build:types": "tsc -p tsconfig.types.json",
     "test": "jest --testPathIgnorePatterns=integration",
     "test:unit": "jest --testPathIgnorePatterns=integration",
@@ -81,7 +81,7 @@
     "node": ">=20.0.0"
   },
   "bin": {
-    "jxpush": "./bin/jxpush.js"
+    "jxpush": "./bin/jxpush.cjs"
   },
   "dependencies": {
     "chalk": "^5.6.2",
@@ -96,7 +96,7 @@
     "firebase-admin": "^12.0.0",
     "handlebars": "^4.7.0",
     "ioredis": "^5.0.0",
-    "kafkajs": "^2.0.0",
+
     "nodemailer": "^8.0.0",
     "resend": "^6.0.0",
     "web-push": "^3.6.0"
@@ -111,9 +111,7 @@
     "bullmq": {
       "optional": true
     },
-    "kafkajs": {
-      "optional": true
-    },
+
     "amqplib": {
       "optional": true
     },
@@ -153,12 +151,12 @@
     "handlebars": "^4.7.8",
     "ioredis": "^5.9.3",
     "jest": "^29.7.0",
-    "kafkajs": "^2.2.4",
+
     "nodemailer": "^8.0.1",
     "prettier": "^3.2.5",
     "resend": "^6.9.2",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.3.3",
-    "web-push": "^3.6.7"
+    "typescript": "^5.3.3"
+
   }
 }
