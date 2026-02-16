@@ -100,12 +100,7 @@ export {
 } from './types/email.types.js';
 
 // Types - Messaging
-export {
-  MessagingMessage,
-  MessagingResult,
-
-  RabbitMQConfig,
-} from './types/messaging.types.js';
+export { MessagingMessage, MessagingResult, RabbitMQConfig } from './types/messaging.types.js';
 
 // Types - Templates
 export {

@@ -57,11 +57,12 @@ export class ExpoProvider extends Provider {
       this.logger.info('Initializing Expo provider...');
 
       // Lazy load expo-server-sdk
-      let ExpoClass: any;
+      let ExpoClass: unknown;
       try {
-        // @ts-ignore
-        const expoModule = (await import('expo-server-sdk')) as any;
-        ExpoClass = expoModule.Expo || expoModule.default?.Expo;
+        // @ts-expect-error - Dynamic import of optional peer dependency
+        const expoModule = (await import('expo-server-sdk')) as unknown;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ExpoClass = (expoModule as any).Expo || (expoModule as any).default?.Expo;
       } catch (error) {
         throw new ProviderError(
           'Failed to load expo-server-sdk module. Please install it: npm install expo-server-sdk',

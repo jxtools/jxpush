@@ -13,9 +13,9 @@ import { ProviderError } from '../../errors/ProviderError.js';
 import { ErrorCode } from '../../errors/PushError.js';
 import { Logger } from '../../utils/logger.js';
 
-
 export class WebPushProvider extends Provider {
   private config: WebPushConfig;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private webpush: any; // Type 'any' to avoid hard dependency on web-push types if not installed
 
   constructor(config: WebPushConfig, logger?: Logger) {
@@ -41,7 +41,7 @@ export class WebPushProvider extends Provider {
   async initialize(): Promise<void> {
     // Lazy load web-push
     try {
-      // @ts-ignore
+      // @ts-expect-error - Dynamic import of optional peer dependency
       const webpushModule = await import('web-push');
       this.webpush = webpushModule.default || webpushModule;
     } catch (error) {
@@ -216,7 +216,7 @@ export class WebPushProvider extends Provider {
    */
   static async generateVAPIDKeys(): Promise<{ publicKey: string; privateKey: string }> {
     try {
-      // @ts-ignore
+      // @ts-expect-error - Dynamic import of optional peer dependency
       const webpush = await import('web-push');
       return (webpush.default || webpush).generateVAPIDKeys();
     } catch (e) {

@@ -18,8 +18,6 @@ export interface MessagingResult {
   error?: Error;
 }
 
-
-
 export interface RabbitMQConfig {
   url: string; // amqp://user:pass@host:port/vhost
   exchange?: string;

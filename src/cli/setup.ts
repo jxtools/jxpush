@@ -191,8 +191,6 @@ async function runSetup(): Promise<void> {
     console.log(chalk.gray('     $ docker run -d -p 5672:5672 rabbitmq\n'));
   }
 
-
-
   console.log(chalk.yellow('  3. Run example:'));
   console.log(
     chalk.gray(
