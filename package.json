@@ -1,6 +1,6 @@
 {
   "name": "jxpush",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Production-grade unified push notification library for Node.js",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
