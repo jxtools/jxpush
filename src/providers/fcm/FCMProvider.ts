@@ -57,7 +57,6 @@ export class FCMProvider extends Provider {
 
       // Lazy load firebase-admin
       try {
-        // @ts-expect-error - Dynamic import of optional peer dependency
         const adminModule = await import('firebase-admin');
         this.admin = adminModule.default || adminModule;
       } catch (error) {

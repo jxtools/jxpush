@@ -59,7 +59,6 @@ export class ExpoProvider extends Provider {
       // Lazy load expo-server-sdk
       let ExpoClass: unknown;
       try {
-        // @ts-expect-error - Dynamic import of optional peer dependency
         const expoModule = (await import('expo-server-sdk')) as unknown;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ExpoClass = (expoModule as any).Expo || (expoModule as any).default?.Expo;
@@ -71,7 +70,8 @@ export class ExpoProvider extends Provider {
         );
       }
 
-      this.expo = new ExpoClass({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this.expo = new (ExpoClass as any)({
         accessToken: (this.config as ExpoConfig).accessToken,
       });
       this.initialized = true;

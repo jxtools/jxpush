@@ -41,7 +41,6 @@ export class WebPushProvider extends Provider {
   async initialize(): Promise<void> {
     // Lazy load web-push
     try {
-      // @ts-expect-error - Dynamic import of optional peer dependency
       const webpushModule = await import('web-push');
       this.webpush = webpushModule.default || webpushModule;
     } catch (error) {
@@ -216,7 +215,6 @@ export class WebPushProvider extends Provider {
    */
   static async generateVAPIDKeys(): Promise<{ publicKey: string; privateKey: string }> {
     try {
-      // @ts-expect-error - Dynamic import of optional peer dependency
       const webpush = await import('web-push');
       return (webpush.default || webpush).generateVAPIDKeys();
     } catch (e) {
